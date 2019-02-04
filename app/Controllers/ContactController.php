@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\ControllerInterface;
 use InvalidArgumentException;
 use Exception;
+use App\Models\ContactModel;
 
 class ContactController extends MainController implements ControllerInterface
 {
@@ -19,6 +20,7 @@ class ContactController extends MainController implements ControllerInterface
         parent::__construct();
 
         $this->userId = $_SESSION['auth']['id'];
+        $this->loadModel('Contact');
     }
 
     /**
@@ -39,14 +41,46 @@ class ContactController extends MainController implements ControllerInterface
     public function add()
     {
         $error = false;
+        // Va permettre de personnaliser le message d'erreur affiché en cas de problème
+        $error_details = "";
+        if (!empty($_POST)) {
+            try {
+                $response = $this->sanitize($_POST);
+                if ($response["response"]) {
+                    $result = $this->Contact->create([
+                        'nom' => $response['nom'],
+                        'prenom' => $response['prenom'],
+                        'email' => $response['email'],
+                        'userId' => $this->userId
+                    ]);
+                    if ($result) {
+                        header('Location: /index.php?p=contact.index');
+                    }
+                } else {
+                    $error = true;
+                    $error_details = $response["message"];
+                }
+            } catch (Exception $e) {
+                $error_details = $e->getMessage();
+            }
+        }
+        echo $this->twig->render('add.html.twig', ['error' => $error, 'error_details' => $error_details]);
+    }
+
+    /**
+     * Modification d'un contact
+     */
+    public function edit()
+    {
+        $id = intval($_GET['id']);
         if (!empty($_POST)) {
             $response = $this->sanitize($_POST);
             if ($response["response"]) {
-                $result = $this->Contact->create([
+                $result = $this->Contact->update($id, [
                     'nom'    => $response['nom'],
                     'prenom' => $response['prenom'],
                     'email'  => $response['email'],
-                    'userId' => $this->userId
+                    //'userId' => $this->userId
                 ]);
                 if ($result) {
                     header('Location: /index.php?p=contact.index');
@@ -55,15 +89,14 @@ class ContactController extends MainController implements ControllerInterface
                 $error = true;
             }
         }
-        echo $this->twig->render('add.html.twig', ['error' => $error]);
-    }
-
-    /**
-     * Modification d'un contact
-     */
-    public function edit()
-    {
-        //@todo
+        if(! empty($id)) {
+            $data = $this->Contact->findById($id);
+            if($data === FALSE) {
+                echo $this->twig->render('add.html.twig', ['error' => true]);
+            } else {
+                echo $this->twig->render('add.html.twig', ['data' => $data]);
+            }
+        }
     }
 
     /**
@@ -78,6 +111,8 @@ class ContactController extends MainController implements ControllerInterface
     }
 
     /**
+     * Permet de nettoyer les données reçues
+     *
      * @param array $data
      * @return array
      * @throws Exception
@@ -85,6 +120,10 @@ class ContactController extends MainController implements ControllerInterface
      */
     public function sanitize(array $data = []): array
     {
+        $prenom = strtoupper($data['prenom']);
+        $nom    = strtoupper($data['nom']);
+        $email  = strtolower($data['email']);
+
         if (empty($nom)) {
             throw new Exception('Le nom est obligatoire');
         }
@@ -94,17 +133,13 @@ class ContactController extends MainController implements ControllerInterface
         }
 
         if (empty($email)) {
-            throw new Exception('Le email est obligatoire');
-        } elseif (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception('L\'email est obligatoire');
+        } elseif (filter_var($email, FILTER_VALIDATE_EMAIL) === FALSE) {
             throw new InvalidArgumentException('Le format de l\'email est invalide');
         }
 
-        $prenom = strtoupper($data['prenom']);
-        $nom    = strtoupper($data['nom']);
-        $email  = strtolower($data['email']);
-
-        $isPalindrome = $this->apiClient('palindrome', ['name' => $nom]);
-        $isEmail = $this->apiClient('email', ['email' => $email]);
+        $isPalindrome = $this->apiClient(['name' => $nom, 'request' => 'palindrome']);
+        $isEmail = $this->apiClient(['email' => $email, 'request' => 'email']);
         if ((!$isPalindrome->response) && $isEmail->response && $prenom) {
             return [
                 'response' => true,
@@ -112,6 +147,21 @@ class ContactController extends MainController implements ControllerInterface
                 'prenom'   => $prenom,
                 'nom'      => $nom
             ];
+        } else {
+            $message = $isPalindrome->response ? $isPalindrome->message : '';
+            $message.= !$isEmail->response ? ' ' . $isEmail->message : '';
+            return [
+                'response' => false,
+                'message'  => $message
+            ];
         }
+    }
+
+    /**
+     * @see add()
+     */
+    public function create()
+    {
+
     }
 }

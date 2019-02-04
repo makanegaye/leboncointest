@@ -3,7 +3,9 @@
 define('ROOT', dirname(__DIR__ . '/..'));
 require ROOT . '/app/App.php';
 App::load();
-if (isset($_GET['p'])) {
+if (! isset($_SESSION['auth']['id'])) {
+    $page = "user.login";
+}elseif (isset($_GET['p'])) {
     $page = $_GET['p'];
 } else {
     $page = 'contact.index';

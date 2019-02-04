@@ -10,6 +10,9 @@
             {% if error %}
                 <div  class="alert alert-danger" >
                     Problème lors de la création du contact
+                    {% if error_details is not empty %}
+                        : {{ error_details }}
+                    {% endif %}
                 </div>
             {% endif %}
             <form method="post" action="" autocomplete="off">

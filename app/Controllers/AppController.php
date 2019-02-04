@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\MainController;
-use Components\Auth\auth;
+use App\Components\Auth\Auth;
 
 class AppController extends MainController
 {

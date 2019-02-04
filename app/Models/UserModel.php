@@ -15,5 +15,6 @@ class UserModel extends AbstractModel
     public function login()
     {
         //@TODO
+
     }
 }

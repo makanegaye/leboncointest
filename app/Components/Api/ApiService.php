@@ -104,7 +104,7 @@ class ApiService
     private function setHeader()
     {
         header("HTTP/1.1 " . $this->code . " " . $this->getStatusMessage());
-        header("Content-Type:" . $this->_content_type);
+        header("Content-Type:" . $this->content_type);
     }
 
     /**

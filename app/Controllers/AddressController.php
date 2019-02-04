@@ -125,7 +125,10 @@ class AddressController extends MainController implements ControllerInterface
      */
     public function delete()
     {
-       //@todo
+        $result = $this->Addresse->delete($_GET['id']);
+        if ($result) {
+            header('Location: /index.php?p=contact.index');
+        }
     }
 
 
@@ -136,12 +139,13 @@ class AddressController extends MainController implements ControllerInterface
      *
      * @return array
      */
-    public function sanitize($data = [])
+    public function sanitize(array $data = []) : array
     {
         $number     = $_POST['number'];
         $city       = strtoupper($_POST['city']);
         $country    = strtoupper($_POST['country']);
         $street     = strtoupper($_POST['street']);
+        $postalCode = $_POST['postalCode'];
         $idContact  = intval($_POST['idContact']);
 
         if ($number && $city && $country && $postalCode && $street
@@ -159,5 +163,13 @@ class AddressController extends MainController implements ControllerInterface
         } else {
             return ['response' => false];
         }
+    }
+
+    /**
+     *
+     */
+    public function create()
+    {
+        //@todo
     }
 }

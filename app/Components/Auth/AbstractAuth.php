@@ -31,7 +31,7 @@ abstract class AbstractAuth
     }
 
     /**
-     * Mathode de connexion de l'utilisateur a partir de son login et du mot de passe encoder en md5
+     * Méthode de connexion de l'utilisateur à partir de son login et du mot de passe encoder en md5
      * @param $login
      * @param $password
      *

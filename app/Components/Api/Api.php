@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Components;
+namespace App\Components\Api;
 use App\Components\Api\ApiService;
 
 class Api extends ApiService
@@ -15,11 +15,37 @@ class Api extends ApiService
         }
 
         $name = $this->request['name'];
+        // Utilisattion d'une classe anonyme pour la détection des palindromes
+        $palindrome = new class {
+            /** @var string $name */
+            protected $name;
+
+            /**
+             * Association du nom à vérifier
+             *
+             * @param $name
+             */
+            public function setName($name)
+            {
+                $this->name = $name;
+            }
+
+            /**
+             * Vérifie si name est un palindrome
+             *
+             * @return bool
+             */
+            public function is_valid()
+            {
+                return $this->name === strrev($this->name);
+            }
+        };
+
         $palindrome->setName($name);
 
         if ($name) {
             if ($palindrome->is_valid()) {
-                $this->response($this->json(["response" => true]), 200);
+                $this->response($this->json(["response" => true, "message" => "Le nom est un palindrome"]), 200);
             } else {
                 $this->response($this->json(["response" => false]), 200);
             }
@@ -34,7 +60,7 @@ class Api extends ApiService
         if ($this->getRequestMethod() != "POST") {
             $this->response('', 406);
         }
-        $email = $this->_request['email'];
+        $email = $this->request['email'];
         if ($email) {
             if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $this->response($this->json([
@@ -66,5 +92,5 @@ class Api extends ApiService
     }
 }
 
-$api = new Api();
-$api->processApi();
+/*$api = new Api();
+$api->processApi();*/
