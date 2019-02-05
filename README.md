@@ -28,7 +28,7 @@ ALTER TABLE `crm`.`contacts` ADD FULLTEXT `ft_nom_prenom` (`nom`, `prenom`);
 3. Code source
 Le code est accessible via git depuis l'url suivante: https://github.com/makanegaye/leboncointest.git
 Exécuter la commande git clone https://github.com/makanegaye/leboncointest.git
-Pour rajouter PhpUnit, exécuter la commande "composer require --dev phpunit/phpunit ^6.5"
+Pour rajouter PhpUnit, exécuter la commande "composer require --dev phpunit/phpunit ^8"
 Et pour installer les dépendances exécuter "composer install"
 
 4. Paramètrage apache
